@@ -1,0 +1,9 @@
+---
+- hosts: all
+  user: root
+  become: yes
+  tasks:
+    - name: directory creation
+      file:
+        path: /root/opt/my-mvn-proj
+        state: directory

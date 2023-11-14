@@ -1,0 +1,41 @@
+---
+- hosts: all
+  user: root
+  become: yes
+  tasks:
+    - name: git installation
+      yum:
+        name: git
+        state: present
+    - name: clone the git repository
+      git:
+        repo: https://github.com/vamshi8500/live01.git
+        dest: /root/vamshi8500
+    - name : maven installation
+      yum:
+        name: maven
+        state: present
+    - name: build the project with maven
+      shell: cd /root/vamshi8500 && mvn clean package
+    - name: dowmload apache tomcat
+      get_url:
+        url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.82/bin/apache-tomcat-9.0.82.tar.gz
+        dest: /tmp/apache-tomcat-9.0.82.tar.gz
+    - name: extract apache tomcat
+      become: yes
+      unarchive:
+        src: /tmp/apache-tomcat-9.0.82.tar.gz
+        dest: /opt
+        remote_src: yes
+        creates: /opt/apache-tomcat-9.0.82
+    - name: run tomcat
+      shell: nohup ./startup.sh
+      args:
+        chdir: /opt/apache-tomcat-9.0.82/bin
+    - name: copy the WAR file to tomcat webapps directory
+      copy:
+        src: /root/vamshi8500/target/live.war
+        dest: /opt/apache-tomcat-9.0.82/webapps/live.war
+        remote_src: yes
+      
+
